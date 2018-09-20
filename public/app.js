@@ -16,9 +16,7 @@ app.config($locationProvider => {
     rewriteLinks: false,
   });
 });
-app.config(stateManagementConfigProvider =>
-  stateManagementConfigProvider.disable()
-);
+app.config(stateManagementConfigProvider => stateManagementConfigProvider.disable());
 
 function RootController($scope, $element, $http) {
   const domNode = $element[0];

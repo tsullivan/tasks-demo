@@ -7,7 +7,7 @@ import {
   EuiPageContent,
   EuiPageContentHeader,
   EuiPageContentBody,
-  EuiText
+  EuiText,
 } from '@elastic/eui';
 
 export class Main extends React.Component {
@@ -22,7 +22,7 @@ export class Main extends React.Component {
        manage state and update your UI than this.
     */
     const { httpClient } = this.props;
-    httpClient.get('../api/monitoring-alerter/example').then((resp) => {
+    httpClient.get('../api/monitoring-alerter/example').then(resp => {
       this.setState({ time: resp.data.time });
     });
   }
@@ -45,7 +45,10 @@ export class Main extends React.Component {
             <EuiPageContentBody>
               <EuiText>
                 <h3>You have successfully created your first Kibana Plugin!</h3>
-                <p>The server time (via API call) is {this.state.time || 'NO API CALL YET'}</p>
+                <p>
+                  The server time (via API call) is{' '}
+                  {this.state.time || 'NO API CALL YET'}
+                </p>
               </EuiText>
             </EuiPageContentBody>
           </EuiPageContent>

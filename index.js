@@ -3,7 +3,7 @@ import { checkClusterStatus } from './server/lib';
 
 const PLUGIN_NAME = 'monitoring-alerter-demo';
 
-export default function (kibana) {
+export default function monitoringAlerter(kibana) {
   return new kibana.Plugin({
     require: ['elasticsearch', 'monitoring', 'notifications'],
     name: PLUGIN_NAME,
@@ -47,28 +47,35 @@ export default function (kibana) {
           const scheduledTasksCheck = await server.taskManager.fetch({
             query: {
               terms: {
-                'task.taskType': [
-                  'check_cluster_status',
-                ]
-              }
-            }
+                'task.taskType': ['check_cluster_status'],
+              },
+            },
           });
 
           if (scheduledTasksCheck.docs.length === 0) {
             const clusterStatusCheck = await server.taskManager.schedule({
               taskType: 'check_cluster_status',
             });
-            server.log(['info', PLUGIN_NAME], `check_cluster_status task: [${clusterStatusCheck.id}] scheduled`);
+            server.log(
+              ['info', PLUGIN_NAME],
+              `check_cluster_status task: [${clusterStatusCheck.id}] scheduled`
+            );
           } else {
-            server.log(['info', PLUGIN_NAME], `check_cluster_status task already scheduled. skipping.`);
+            server.log(
+              ['info', PLUGIN_NAME],
+              `check_cluster_status task already scheduled. skipping.`
+            );
           }
 
           this.status.green('Ready');
         } catch (err) {
-          server.log(['error', PLUGIN_NAME], `check_cluster_status task could not be configured: ${err.message}`);
+          server.log(
+            ['error', PLUGIN_NAME],
+            `check_cluster_status task could not be configured: ${err.message}`
+          );
           this.status.green('Unknown state. Check the Kibana logs.');
         }
       });
-    }
+    },
   });
 }
