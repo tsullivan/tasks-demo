@@ -1,5 +1,5 @@
 import exampleRoute from './server/routes/example';
-import { checkClusterStatus, checkLicenseStatus } from './server/lib';
+import { checkClusterStatusTask, checkLicenseStatusTask } from './server/lib';
 
 const PLUGIN_NAME = 'monitoring-alerter-demo';
 const TASK_CHECK_CLUSTER = 'check_cluster_status';
@@ -22,7 +22,7 @@ export default function monitoringAlerter(kibana) {
           title: `check monitoring indices and see if there's a yellow or red cluster`,
           createTaskRunner(context) {
             return {
-              run: checkClusterStatus(context),
+              run: checkClusterStatusTask(context),
             };
           },
         },
@@ -31,7 +31,7 @@ export default function monitoringAlerter(kibana) {
           title: `check monitoring indices and see if there's an xpack license about to expire`,
           createTaskRunner(context) {
             return {
-              run: checkLicenseStatus(context),
+              run: checkLicenseStatusTask(context),
             };
           },
         },
@@ -63,7 +63,7 @@ export default function monitoringAlerter(kibana) {
             },
           });
 
-          // FIXME: make sure it's not just 2 of the same task
+          // FIXME: index with a specified ID
           if (scheduledTasksCheck.docs.length === 2) {
             server.log(
               ['info', PLUGIN_NAME],

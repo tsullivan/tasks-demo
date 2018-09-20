@@ -1,39 +1,49 @@
 import { get } from 'lodash';
 import { nextRun } from './next_run';
 
-export function checkLicenseStatus({ kbnServer }) {
-  const {
-    callWithInternalUser: callCluster,
-  } = kbnServer.server.plugins.elasticsearch.getCluster('monitoring');
+export async function checkLicenseStatus(callWithInternalUser) {
+  const params = {
+    size: 100,
+    filterPath: [
+      'hits.hits._source.cluster_uuid',
+      'hits.hits._source.timestamp',
+      'hits.hits._source.license',
+    ],
+    body: {
+      query: { term: { type: { value: 'cluster_stats' } } },
+      collapse: { field: 'cluster_uuid' },
+      sort: { timestamp: { order: 'desc' } },
+    },
+  };
+
+  const response = await callWithInternalUser('search', params);
+  return get(response, 'hits.hits', []).reduce((accum, { _source: source }) => {
+    return {
+      ...accum,
+      [source.cluster_uuid]: {
+        cluster_uuid: source.cluster_uuid,
+        timestamp: source.timestamp,
+        license: source.license.type,
+        expiry: source.license.expiry_date_in_millis,
+      },
+    };
+  }, {});
+}
+
+export function checkLicenseStatusTask({ kbnServer }) {
+  const { server } = kbnServer;
+  const { callWithInternalUser } = server.plugins.elasticsearch.getCluster(
+    'monitoring'
+  );
 
   return async () => {
     const runStart = Date.now();
-
-    const params = {
-      filterPath: ['hits.hits._source.license'],
-      size: 1,
-      body: {
-        query: {
-          bool: {
-            filter: {
-              bool: {
-                must: [{ term: { type: { value: 'cluster_stats' } } }],
-              },
-            },
-          },
-        },
-        sort: [{ timestamp: { order: 'desc' } }],
-      },
-    };
-
-    const response = await callCluster('search', params);
-    const result = get(response, 'hits.hits.0._source.license.expiry_date_in_millis');
-    console.log({ result });
+    const state = await checkLicenseStatus(callWithInternalUser);
 
     return {
       state: {
-        lastState: { expiry_date_in_millis: result },
         lastRan: runStart,
+        lastState: state,
       },
       runAt: nextRun(),
     };
