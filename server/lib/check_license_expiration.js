@@ -1,7 +1,7 @@
 import { get } from 'lodash';
 import { nextRun } from './next_run';
 
-export function checkLicenseExpiration({ kbnServer }) {
+export function checkLicenseStatus({ kbnServer }) {
   const {
     callWithInternalUser: callCluster,
   } = kbnServer.server.plugins.elasticsearch.getCluster('monitoring');

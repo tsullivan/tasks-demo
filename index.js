@@ -1,7 +1,9 @@
 import exampleRoute from './server/routes/example';
-import { checkClusterStatus } from './server/lib';
+import { checkClusterStatus, checkLicenseStatus } from './server/lib';
 
 const PLUGIN_NAME = 'monitoring-alerter-demo';
+const TASK_CHECK_CLUSTER = 'check_cluster_status';
+const TASK_CHECK_LICENSE = 'check_license_expiration';
 
 export default function monitoringAlerter(kibana) {
   return new kibana.Plugin({
@@ -15,12 +17,21 @@ export default function monitoringAlerter(kibana) {
         styleSheetPath: require('path').resolve(__dirname, 'public/app.scss'),
       },
       taskDefinitions: {
-        check_cluster_status: {
+        [TASK_CHECK_CLUSTER]: {
           type: PLUGIN_NAME,
           title: `check monitoring indices and see if there's a yellow or red cluster`,
           createTaskRunner(context) {
             return {
               run: checkClusterStatus(context),
+            };
+          },
+        },
+        [TASK_CHECK_LICENSE]: {
+          type: PLUGIN_NAME,
+          title: `check monitoring indices and see if there's an xpack license about to expire`,
+          createTaskRunner(context) {
+            return {
+              run: checkLicenseStatus(context),
             };
           },
         },
@@ -47,31 +58,56 @@ export default function monitoringAlerter(kibana) {
           const scheduledTasksCheck = await server.taskManager.fetch({
             query: {
               terms: {
-                'task.taskType': ['check_cluster_status'],
+                'task.taskType': [TASK_CHECK_CLUSTER, TASK_CHECK_LICENSE],
               },
             },
           });
 
-          if (scheduledTasksCheck.docs.length === 0) {
-            const clusterStatusCheck = await server.taskManager.schedule({
-              taskType: 'check_cluster_status',
-            });
+          // FIXME: make sure it's not just 2 of the same task
+          if (scheduledTasksCheck.docs.length === 2) {
             server.log(
               ['info', PLUGIN_NAME],
-              `check_cluster_status task: [${clusterStatusCheck.id}] scheduled`
+              `${PLUGIN_NAME} tasks already scheduled. Skipping.`
             );
           } else {
-            server.log(
-              ['info', PLUGIN_NAME],
-              `check_cluster_status task already scheduled. skipping.`
-            );
+            let hasClusterStatusCheck = false;
+            let hasLicenseStatusCheck = false;
+            for (const task of scheduledTasksCheck.docs) {
+              console.log({ task });
+              switch (task.taskType) {
+                case TASK_CHECK_CLUSTER:
+                  hasClusterStatusCheck = true;
+                  break;
+                case TASK_CHECK_LICENSE:
+                  hasLicenseStatusCheck = true;
+              }
+            }
+
+            if (!hasClusterStatusCheck) {
+              const { id } = await server.taskManager.schedule({
+                taskType: TASK_CHECK_CLUSTER,
+              });
+              server.log(
+                ['info', PLUGIN_NAME],
+                `${TASK_CHECK_CLUSTER} task: [${id}] scheduled`
+              );
+            }
+            if (!hasLicenseStatusCheck) {
+              const { id } = await server.taskManager.schedule({
+                taskType: TASK_CHECK_LICENSE,
+              });
+              server.log(
+                ['info', PLUGIN_NAME],
+                `${TASK_CHECK_LICENSE} task: [${id}] scheduled`
+              );
+            }
           }
 
           this.status.green('Ready');
         } catch (err) {
           server.log(
             ['error', PLUGIN_NAME],
-            `check_cluster_status task could not be configured: ${err.message}`
+            `Tasks could not be configured: ${err.message}`
           );
           this.status.green('Unknown state. Check the Kibana logs.');
         }
