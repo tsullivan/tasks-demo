@@ -6,6 +6,7 @@ export async function checkLicenseStatus(callWithInternalUser) {
     size: 100,
     filterPath: [
       'hits.hits._source.cluster_uuid',
+      'hits.hits._source.cluster_name',
       'hits.hits._source.timestamp',
       'hits.hits._source.license',
     ],
@@ -21,10 +22,13 @@ export async function checkLicenseStatus(callWithInternalUser) {
     return {
       ...accum,
       [source.cluster_uuid]: {
-        cluster_uuid: source.cluster_uuid,
+        cluster_name: source.cluster_name,
         timestamp: source.timestamp,
         license: source.license.type,
-        expiry: source.license.expiry_date_in_millis,
+        expiry: {
+          millis: source.license.expiry_date_in_millis,
+          date: source.license.expiry_date,
+        },
       },
     };
   }, {});

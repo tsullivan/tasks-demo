@@ -6,6 +6,7 @@ export async function checkClusterStatus(callWithInternalUser) {
     size: 100,
     filterPath: [
       'hits.hits._source.cluster_uuid',
+      'hits.hits._source.cluster_name',
       'hits.hits._source.timestamp',
       'hits.hits._source.cluster_state.status',
     ],
@@ -22,7 +23,7 @@ export async function checkClusterStatus(callWithInternalUser) {
     return {
       ...accum,
       [source.cluster_uuid]: {
-        cluster_uuid: source.cluster_uuid,
+        cluster_name: source.cluster_name,
         timestamp: source.timestamp,
         status: clusterStatus,
         isRed: clusterStatus === 'red',

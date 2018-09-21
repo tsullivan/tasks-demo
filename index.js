@@ -1,4 +1,4 @@
-import exampleRoute from './server/routes/example';
+import { routes } from './server/routes';
 import { checkClusterStatusTask, checkLicenseStatusTask } from './server/lib';
 
 const PLUGIN_NAME = 'monitoring-alerter-demo';
@@ -47,9 +47,7 @@ export default function monitoringAlerter(kibana) {
     // eslint-disable-next-line no-unused-vars
     init(server, options) {
       this.status.yellow('Waiting for task manager service');
-
-      // Add server routes and initialize the plugin here
-      exampleRoute(server);
+      routes(server);
 
       this.kbnServer.afterPluginsInit(async () => {
         this.status.yellow('Checking tasks status');

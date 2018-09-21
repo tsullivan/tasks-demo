@@ -1,6 +1,6 @@
 import { checkClusterStatus, checkLicenseStatus } from '../lib';
 
-export default function routeExample(server) {
+export function routes(server) {
   server.route({
     path: '/api/monitoring-alerter/cluster_status',
     method: 'GET',
