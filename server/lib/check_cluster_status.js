@@ -1,3 +1,4 @@
+import moment from 'moment';
 import { get } from 'lodash';
 import { nextRun } from './next_run';
 
@@ -40,7 +41,7 @@ export function checkClusterStatusTask({ kbnServer /*, taskInstance*/ }) {
   );
 
   return async () => {
-    const runStart = Date.now();
+    const runStart = moment.utc();
     const state = await checkClusterStatus(callWithInternalUser);
     return {
       state: {
