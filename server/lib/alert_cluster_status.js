@@ -20,32 +20,19 @@ export async function alertClusterStatus(server, taskInstance, state) {
 
   for (const clusterUuid of Object.keys(state)) {
     const cluster = state[clusterUuid];
-    const severity = getSeverity(cluster.cluster_state.status);
+    const clusterStatus = cluster.cluster_state.status;
+    const severity = getSeverity(clusterStatus);
+    state[clusterUuid].last_severity = severity;
 
     let result = Promise.resolve({});
 
-    if (severity != null) {
+    if (severity === SEV_CRITICAL || severity === SEV_MEDIUM) {
       const { cluster_name: clusterName } = cluster;
-      const clusterPre = `Cluster [${clusterName} / ${clusterUuid}] X-Pack license`;
-      const expirationPost = `Expiration date: ${cluster.expiry.date}`;
-
-      switch (severity) {
-        case SEV_CRITICAL:
-          result = action.performAction({
-            severity,
-            message: `${clusterPre} is expired! ${expirationPost}`,
-          });
-          break;
-        case SEV_MEDIUM:
-          result = action.performAction({
-            severity,
-            message: `${clusterPre} expires in less than 10 days!! ${expirationPost}`,
-          });
-          break;
-      }
+      result = action.performAction({
+        severity,
+        message: `Cluster [${clusterName} / ${clusterUuid}] status is ${clusterStatus}`,
+      });
     }
-
-    state[clusterUuid].last_severity = severity;
 
     // save the time a notification action was performed, if one was
     const { error, ok: alertSuccess } = await result;

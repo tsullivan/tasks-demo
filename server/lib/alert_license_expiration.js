@@ -22,6 +22,7 @@ export async function alertLicenseExpiration(server, taskInstance, state) {
   for (const clusterUuid of Object.keys(state)) {
     const cluster = state[clusterUuid];
     const severity = getSeverity(cluster.expiry.daysTo);
+    state[clusterUuid].last_severity = severity;
 
     let result = Promise.resolve({});
 
@@ -45,8 +46,6 @@ export async function alertLicenseExpiration(server, taskInstance, state) {
           break;
       }
     }
-
-    state[clusterUuid].last_severity = severity;
 
     // save the time a notification action was performed, if one was
     const { error, ok: alertSuccess } = await result;

@@ -22,6 +22,11 @@ export async function checkLicenseStatus(callWithInternalUser) {
   const response = await callWithInternalUser('search', params);
   return get(response, 'hits.hits', []).reduce((accum, { _source: source }) => {
     const { license } = source;
+    const daysTo = Math.ceil(
+      moment
+        .duration(moment.utc(license.expiry_date_in_millis) - moment.utc())
+        .as('days')
+    );
     return {
       ...accum,
       [source.cluster_uuid]: {
@@ -31,12 +36,10 @@ export async function checkLicenseStatus(callWithInternalUser) {
         expiry: {
           millis: license.expiry_date_in_millis,
           date: license.expiry_date,
-          daysTo: Math.ceil(
-            moment
-              .duration(moment.utc(license.expiry_date_in_millis) - moment.utc())
-              .as('days')
-          ),
+          days_to: daysTo,
         },
+        is_expired: daysTo < 1,
+        is_expiring_soon: daysTo > 0 && daysTo < 11,
       },
     };
   }, {});
