@@ -1,6 +1,7 @@
 import moment from 'moment';
 import { get } from 'lodash';
 import { nextRun } from './next_run';
+import { alertLicenseExpiration } from './alert_license_expiration';
 
 export async function checkLicenseStatus(callWithInternalUser) {
   const params = {
@@ -41,22 +42,6 @@ export async function checkLicenseStatus(callWithInternalUser) {
   }, {});
 }
 
-const SEV_CRITICAL = 'critical';
-const SEV_MEDIUM = 'medium';
-const SEV_INFO = 'info';
-
-const getSeverity = daysTo => {
-  if (daysTo < 0) {
-    return SEV_CRITICAL;
-  }
-  if (daysTo < 10) {
-    return SEV_MEDIUM;
-  }
-  if (daysTo < 40) {
-    return SEV_INFO;
-  }
-};
-
 export function checkLicenseStatusTask({ kbnServer, taskInstance }) {
   const { server } = kbnServer;
   const { callWithInternalUser } = server.plugins.elasticsearch.getCluster(
@@ -69,66 +54,7 @@ export function checkLicenseStatusTask({ kbnServer, taskInstance }) {
 
     // perform an alert
     if (server.plugins.notifications) {
-      const { last_state: lastState } = taskInstance.state;
-      const { notificationService } = server.plugins.notifications;
-      const action = notificationService.getActionForId('xpack-notifications-logger');
-
-      for (const clusterUuid of Object.keys(state)) {
-        const cluster = state[clusterUuid];
-        const severity = getSeverity(cluster.expiry.daysTo);
-        state[clusterUuid].last_severity = severity;
-
-        const lastAlerted = lastState[clusterUuid].last_alerted;
-        const shouldSilence =
-          lastAlerted && moment(moment.utc(lastAlerted) + 60000) >= moment.utc();
-
-        if (shouldSilence) {
-          continue;
-        }
-
-        let result = Promise.resolve({});
-
-        switch (severity) {
-          case SEV_CRITICAL:
-            result = action.performAction({
-              severity,
-              message: `Cluster [${
-                cluster.cluster_name
-              }] X-Pack license is expired! Expired on: ${cluster.expiry.date}`,
-            });
-            break;
-          case SEV_MEDIUM:
-            result = action.performAction({
-              severity,
-              message: `Cluster [${
-                cluster.cluster_name
-              }] X-Pack license expires in less than 10 days! Expires on: ${
-                cluster.expiry.date
-              }`,
-            });
-            break;
-          case SEV_INFO:
-            result = action.performAction({
-              severity,
-              message: `Cluster [${
-                cluster.cluster_name
-              }] X-Pack license expires in less than 40 days. Expires on: ${
-                cluster.expiry.date
-              }`,
-            });
-        }
-
-        // save the time a notification action was performed, if one was
-        const { error, ok } = await result;
-        if (error) {
-          server.log(
-            ['warn', 'alert', 'notification'],
-            `Failure performing notification alert: ${error}`
-          );
-        } else if (ok) {
-          state[clusterUuid].last_alerted = moment.utc().format();
-        }
-      }
+      alertLicenseExpiration(server, taskInstance, state);
     }
 
     return {
