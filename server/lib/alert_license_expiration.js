@@ -15,7 +15,6 @@ const getSeverity = daysTo => {
 
 // eslint-disable-next-line no-unused-vars
 export async function alertLicenseExpiration(server, taskInstance, state) {
-  /// const { last_state: lastState } = taskInstance.state; // use lastState to throttle alerting down to 1x / hour or something
   const { notificationService } = server.plugins.notifications;
   const action = notificationService.getActionForId('xpack-notifications-logger');
 
