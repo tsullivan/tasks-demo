@@ -20,7 +20,7 @@ export async function alertClusterStatus(server, taskInstance, state) {
 
   for (const clusterUuid of Object.keys(state)) {
     const cluster = state[clusterUuid];
-    const clusterStatus = cluster.cluster_state.status;
+    const clusterStatus = cluster.status;
     const severity = getSeverity(clusterStatus);
     state[clusterUuid].last_severity = severity;
 

@@ -21,15 +21,14 @@ export async function alertLicenseExpiration(server, taskInstance, state) {
 
   for (const clusterUuid of Object.keys(state)) {
     const cluster = state[clusterUuid];
-    const severity = getSeverity(cluster.expiry.daysTo);
+    const { cluster_name: clusterName, expiry } = cluster;
+    const severity = getSeverity(expiry.days_to);
     state[clusterUuid].last_severity = severity;
-
     let result = Promise.resolve({});
 
     if (severity != null) {
-      const { cluster_name: clusterName } = cluster;
       const clusterPre = `Cluster [${clusterName} / ${clusterUuid}] X-Pack license`;
-      const expirationPost = `Expiration date: ${cluster.expiry.date}`;
+      const expirationPost = `Expiration date: ${expiry.date}`;
 
       switch (severity) {
         case SEV_CRITICAL:
