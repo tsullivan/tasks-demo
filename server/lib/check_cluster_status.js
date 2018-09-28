@@ -1,6 +1,7 @@
 import moment from 'moment';
 import { get } from 'lodash';
 import { nextRun } from './next_run';
+import { alertClusterStatus } from './alert_cluster_status';
 
 export async function checkClusterStatus(callWithInternalUser) {
   const params = {
@@ -34,7 +35,7 @@ export async function checkClusterStatus(callWithInternalUser) {
   }, {});
 }
 
-export function checkClusterStatusTask({ kbnServer /*, taskInstance*/ }) {
+export function checkClusterStatusTask({ kbnServer, taskInstance }) {
   const { server } = kbnServer;
   const { callWithInternalUser } = server.plugins.elasticsearch.getCluster(
     'monitoring'
@@ -43,6 +44,12 @@ export function checkClusterStatusTask({ kbnServer /*, taskInstance*/ }) {
   return async () => {
     const runStart = moment.utc();
     const state = await checkClusterStatus(callWithInternalUser);
+
+    // perform an alert
+    if (server.plugins.notifications) {
+      alertClusterStatus(server, taskInstance, state);
+    }
+
     return {
       state: {
         lastRan: runStart,
