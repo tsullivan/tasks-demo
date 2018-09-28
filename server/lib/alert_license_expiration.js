@@ -13,7 +13,6 @@ const getSeverity = daysTo => {
   return null;
 };
 
-// eslint-disable-next-line no-unused-vars
 export async function alertLicenseExpiration(server, taskInstance, state) {
   const { notificationService } = server.plugins.notifications;
   const action = notificationService.getActionForId('xpack-notifications-logger');
@@ -28,17 +27,18 @@ export async function alertLicenseExpiration(server, taskInstance, state) {
     if (severity != null) {
       const clusterPre = `Cluster [${clusterName} / ${clusterUuid}] X-Pack license`;
       const expirationPost = `Expiration date: ${expiry.date}`;
+      const baseAction = { task_id: taskInstance.id, severity };
 
       switch (severity) {
         case SEV_CRITICAL:
           result = action.performAction({
-            severity,
+            ...baseAction,
             message: `${clusterPre} is expired! ${expirationPost}`,
           });
           break;
         case SEV_MEDIUM:
           result = action.performAction({
-            severity,
+            ...baseAction,
             message: `${clusterPre} expires in less than 10 days!! ${expirationPost}`,
           });
           break;

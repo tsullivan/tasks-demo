@@ -13,7 +13,6 @@ const getSeverity = status => {
   return null;
 };
 
-// eslint-disable-next-line no-unused-vars
 export async function alertClusterStatus(server, taskInstance, state) {
   const { notificationService } = server.plugins.notifications;
   const action = notificationService.getActionForId('xpack-notifications-logger');
@@ -29,6 +28,7 @@ export async function alertClusterStatus(server, taskInstance, state) {
     if (severity === SEV_CRITICAL || severity === SEV_MEDIUM) {
       const { cluster_name: clusterName } = cluster;
       result = action.performAction({
+        task_id: taskInstance.id,
         severity,
         message: `Cluster [${clusterName} / ${clusterUuid}] status is ${clusterStatus}`,
       });
