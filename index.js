@@ -9,7 +9,7 @@ const TASK_CHECK_LICENSE_ID = 'monitoring_alerter_check_xpack_license';
 
 export default function monitoringAlerter(kibana) {
   return new kibana.Plugin({
-    require: ['elasticsearch', 'monitoring', 'notifications'],
+    require: ['elasticsearch', 'task_manager', 'monitoring', 'notifications'],
     name: PLUGIN_NAME,
     uiExports: {
       app: {
@@ -18,7 +18,17 @@ export default function monitoringAlerter(kibana) {
         main: 'plugins/monitoring_alerter/app',
         styleSheetPath: require('path').resolve(__dirname, 'public/app.scss'),
       },
-      taskDefinitions: {
+    },
+
+    config(Joi) {
+      return Joi.object({
+        enabled: Joi.boolean().default(true),
+      }).default();
+    },
+
+    init(server) {
+      const { client: taskManagerClient } = server.plugins.taskManager;
+      taskManagerClient.registerTaskDefinitions({
         [TASK_CHECK_CLUSTER]: {
           type: PLUGIN_NAME,
           title: `check monitoring indices and see if there's a yellow or red cluster`,
@@ -37,16 +47,8 @@ export default function monitoringAlerter(kibana) {
             };
           },
         },
-      },
-    },
+      });
 
-    config(Joi) {
-      return Joi.object({
-        enabled: Joi.boolean().default(true),
-      }).default();
-    },
-
-    init(server) {
       this.status.yellow('Waiting for task manager service');
 
       this.kbnServer.afterPluginsInit(async () => {
@@ -55,7 +57,7 @@ export default function monitoringAlerter(kibana) {
         let taskCheckClusterId;
         let taskCheckLicenseId;
         try {
-          ({ id: taskCheckClusterId } = await server.taskManager.schedule({
+          ({ id: taskCheckClusterId } = await taskManagerClient.schedule({
             id: TASK_CHECK_CLUSTER_ID,
             taskType: TASK_CHECK_CLUSTER,
           }));
@@ -64,7 +66,7 @@ export default function monitoringAlerter(kibana) {
             `${TASK_CHECK_CLUSTER} task: [${taskCheckClusterId}] scheduled`
           );
 
-          ({ id: taskCheckLicenseId } = await server.taskManager.schedule({
+          ({ id: taskCheckLicenseId } = await taskManagerClient.schedule({
             id: TASK_CHECK_LICENSE_ID,
             taskType: TASK_CHECK_LICENSE,
           }));
@@ -80,8 +82,8 @@ export default function monitoringAlerter(kibana) {
             `Tasks could not be configured: ${err.message}`
           );
           if (taskCheckClusterId && taskCheckLicenseId) {
-            await server.taskManager.remove(taskCheckClusterId);
-            await server.taskManager.remove(taskCheckLicenseId);
+            await taskManagerClient.remove(taskCheckClusterId);
+            await taskManagerClient.remove(taskCheckLicenseId);
           }
           this.status.red(err.message);
         }
