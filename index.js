@@ -31,7 +31,7 @@ export default function monitoringAlerter(kibana) {
       taskManager.registerTaskDefinitions({
         [TASK_CHECK_CLUSTER]: {
           type: PLUGIN_NAME,
-          title: `check monitoring indices and see if there's a yellow or red cluster`,
+          title: `Check monitoring indices and see if there's a yellow or red cluster`,
           createTaskRunner(context) {
             return {
               run: checkClusterStatusTask(context),
@@ -40,7 +40,7 @@ export default function monitoringAlerter(kibana) {
         },
         [TASK_CHECK_LICENSE]: {
           type: PLUGIN_NAME,
-          title: `check monitoring indices and see if there's an xpack license about to expire`,
+          title: `Check monitoring indices and see if there's an xpack license about to expire`,
           createTaskRunner(context) {
             return {
               run: checkLicenseStatusTask(context),

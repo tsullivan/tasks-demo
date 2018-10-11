@@ -3,6 +3,12 @@ import {
   EuiPage,
   EuiPageHeader,
   EuiTitle,
+  EuiForm,
+  EuiFormRow,
+  EuiFieldText,
+  EuiSelect,
+  EuiSwitch,
+  EuiButton,
   EuiPageBody,
   EuiPageContent,
   EuiPageContentHeader,
@@ -16,16 +22,6 @@ export class Main extends React.Component {
     this.state = {};
   }
 
-  componentDidMount() {
-    /*
-       FOR EXAMPLE PURPOSES ONLY.  There are much better ways to
-       manage state and update your UI than this.
-    */
-    const { httpClient } = this.props;
-    httpClient.get('../api/monitoring-alerter/example').then(resp => {
-      this.setState({ time: resp.data.time });
-    });
-  }
   render() {
     const { title } = this.props;
     return (
@@ -33,22 +29,64 @@ export class Main extends React.Component {
         <EuiPageBody>
           <EuiPageHeader>
             <EuiTitle size="l">
-              <h1>{title} Hello World!</h1>
+              <h1>{title}</h1>
             </EuiTitle>
           </EuiPageHeader>
           <EuiPageContent>
             <EuiPageContentHeader>
               <EuiTitle>
-                <h2>Congratulations</h2>
+                <h2>Tasks Demo</h2>
               </EuiTitle>
             </EuiPageContentHeader>
             <EuiPageContentBody>
               <EuiText>
-                <h3>You have successfully created your first Kibana Plugin!</h3>
-                <p>
-                  The server time (via API call) is{' '}
-                  {this.state.time || 'NO API CALL YET'}
-                </p>
+                <h3>Use this form to schedule a demo task</h3>
+                <EuiForm>
+                  <EuiFormRow label="Index" helpText={'e.g. "logstash-*"'}>
+                    <EuiFieldText name="index" />
+                  </EuiFormRow>
+
+                  <EuiFormRow
+                    label="Query"
+                    helpText={'e.g. "NOT response.keyword: 200"'}
+                  >
+                    <EuiFieldText name="query" />
+                  </EuiFormRow>
+
+                  <EuiFormRow label="Metric" helpText="Enter a number for threshold">
+                    <EuiFieldText name="index" />
+                  </EuiFormRow>
+
+                  <EuiFormRow label="Select Metric Agg">
+                    <EuiSelect
+                      hasNoInitialSelection
+                      options={[{ value: 'count', text: 'Count' }]}
+                    />
+                  </EuiFormRow>
+
+                  <EuiFormRow label="Check every">
+                    <EuiSelect
+                      hasNoInitialSelection
+                      options={[
+                        { value: '1m', text: '1 minute' },
+                        { value: '5m', text: '5 minutes' },
+                        { value: '10m', text: '10 minutes' },
+                      ]}
+                    />
+                  </EuiFormRow>
+
+                  <EuiFormRow label="Options">
+                    <EuiSwitch
+                      name="allow_snooze"
+                      label="Allow snooze?"
+                      checked={this.state.allowSnooze}
+                    />
+                  </EuiFormRow>
+
+                  <EuiButton type="submit" fill>
+                    Schedule task
+                  </EuiButton>
+                </EuiForm>
               </EuiText>
             </EuiPageContentBody>
           </EuiPageContent>

@@ -13,6 +13,11 @@ const getSeverity = status => {
   return null;
 };
 
+/*
+ * @param {Object} server
+ * @param {Object} taskInstance - instance from the scheduled task passed to the task runner function as part of the run context
+ * @param {Object} state - modeled data computed by the task runner function
+ */
 export async function alertClusterStatus(server, taskInstance, state) {
   const { notificationService } = server.plugins.notifications;
   const action = notificationService.getActionForId('xpack-notifications-logger');
