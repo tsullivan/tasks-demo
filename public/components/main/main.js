@@ -3,27 +3,61 @@ import {
   EuiPage,
   EuiPageHeader,
   EuiTitle,
-  EuiForm,
-  EuiFormRow,
-  EuiFieldText,
-  EuiSelect,
-  EuiSwitch,
-  EuiButton,
   EuiPageBody,
   EuiPageContent,
   EuiPageContentHeader,
   EuiPageContentBody,
+  EuiFlexGroup,
+  EuiFlexItem,
   EuiText,
 } from '@elastic/eui';
+import { ScheduleForm } from './form';
+import { TaskList } from './list';
 
 export class Main extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {};
+
+    this.state = {
+      demoTasks: null,
+      builtInTasks: null,
+      postResult: null,
+    };
+
+    this.sendScheduleData = this.sendScheduleData.bind(this);
+  }
+
+  componentDidMount() {
+    const { httpClient } = this.props;
+    setInterval(() => {
+      httpClient.get('../api/monitoring-alerter/get_demo_tasks').then(({ data }) => {
+        this.setState({ demoTasks: data.tasks });
+      });
+    }, 1400);
+    setInterval(() => {
+      httpClient.get('../api/monitoring-alerter/get_builtin_tasks').then(({ data }) => {
+        this.setState({ builtInTasks: data.tasks });
+      });
+    }, 1400);
+  }
+
+  sendScheduleData(payload) {
+    // send
+    const { httpClient } = this.props;
+    httpClient
+      .post('../api/monitoring-alerter/schedule_demo_task', payload)
+      .then(({ data }) => {
+        this.setState({ postResult: data.result });
+      });
   }
 
   render() {
     const { title } = this.props;
+    const postResult = this.state.postResult ? (
+      <pre>{this.state.postResult}</pre>
+    ) : null;
+    const scheduleForm = <ScheduleForm sendScheduleData={this.sendScheduleData} />;
+
     return (
       <EuiPage>
         <EuiPageBody>
@@ -35,59 +69,27 @@ export class Main extends React.Component {
           <EuiPageContent>
             <EuiPageContentHeader>
               <EuiTitle>
-                <h2>Tasks Demo</h2>
+                <h2>Task Scheduling Demo</h2>
               </EuiTitle>
             </EuiPageContentHeader>
             <EuiPageContentBody>
-              <EuiText>
-                <h3>Use this form to schedule a demo task</h3>
-                <EuiForm>
-                  <EuiFormRow label="Index" helpText={'e.g. "logstash-*"'}>
-                    <EuiFieldText name="index" />
-                  </EuiFormRow>
+              <EuiFlexGroup component="div">
+                <EuiFlexItem component="div">
+                  <EuiText>
+                    <h3>Schedule a task</h3>
+                    {postResult || scheduleForm}
+                  </EuiText>
+                </EuiFlexItem>
 
-                  <EuiFormRow
-                    label="Query"
-                    helpText={'e.g. "NOT response.keyword: 200"'}
-                  >
-                    <EuiFieldText name="query" />
-                  </EuiFormRow>
-
-                  <EuiFormRow label="Metric" helpText="Enter a number for threshold">
-                    <EuiFieldText name="index" />
-                  </EuiFormRow>
-
-                  <EuiFormRow label="Select Metric Agg">
-                    <EuiSelect
-                      hasNoInitialSelection
-                      options={[{ value: 'count', text: 'Count' }]}
-                    />
-                  </EuiFormRow>
-
-                  <EuiFormRow label="Check every">
-                    <EuiSelect
-                      hasNoInitialSelection
-                      options={[
-                        { value: '1m', text: '1 minute' },
-                        { value: '5m', text: '5 minutes' },
-                        { value: '10m', text: '10 minutes' },
-                      ]}
-                    />
-                  </EuiFormRow>
-
-                  <EuiFormRow label="Options">
-                    <EuiSwitch
-                      name="allow_snooze"
-                      label="Allow snooze?"
-                      checked={this.state.allowSnooze}
-                    />
-                  </EuiFormRow>
-
-                  <EuiButton type="submit" fill>
-                    Schedule task
-                  </EuiButton>
-                </EuiForm>
-              </EuiText>
+                <EuiFlexItem component="div">
+                  <EuiText>
+                    <h3>Your tasks</h3>
+                    {<TaskList tasks={this.state.demoTasks} />}
+                    <h3>Built-in tasks</h3>
+                    {<TaskList tasks={this.state.builtInTasks} />}
+                  </EuiText>
+                </EuiFlexItem>
+              </EuiFlexGroup>
             </EuiPageContentBody>
           </EuiPageContent>
         </EuiPageBody>
