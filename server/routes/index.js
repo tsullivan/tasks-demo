@@ -77,6 +77,21 @@ export function routes(server) {
   });
 
   server.route({
+    path: '/api/monitoring-alerter/delete_demo_task',
+    method: 'POST',
+    async handler(req, reply) {
+      try {
+        const result = await taskManager.remove(req.payload.id);
+        const data = { result };
+
+        reply(data);
+      } catch (err) {
+        reply(err);
+      }
+    },
+  });
+
+  server.route({
     path: '/api/monitoring-alerter/cluster_status',
     method: 'GET',
     async handler(req, reply) {

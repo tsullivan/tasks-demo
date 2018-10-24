@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 import {
   EuiPage,
   EuiPageHeader,
@@ -10,6 +10,7 @@ import {
   EuiFlexGroup,
   EuiFlexItem,
   EuiText,
+  EuiLink,
 } from '@elastic/eui';
 import { ScheduleForm } from './form';
 import { TaskList } from './list';
@@ -25,6 +26,7 @@ export class Main extends React.Component {
     };
 
     this.sendScheduleData = this.sendScheduleData.bind(this);
+    this.trash = this.trash.bind(this);
   }
 
   componentDidMount() {
@@ -51,10 +53,18 @@ export class Main extends React.Component {
       });
   }
 
+  trash(id) {
+    const { httpClient } = this.props;
+    httpClient.post(`../api/monitoring-alerter/delete_demo_task`, { id });
+  }
+
   render() {
     const { title } = this.props;
     const postResult = this.state.postResult ? (
-      <pre>{this.state.postResult}</pre>
+      <Fragment>
+        <pre>{this.state.postResult}</pre>
+        <EuiLink onClick={() => this.setState({ postResult: null })}>Back</EuiLink>
+      </Fragment>
     ) : null;
     const scheduleForm = <ScheduleForm sendScheduleData={this.sendScheduleData} />;
 
@@ -84,9 +94,9 @@ export class Main extends React.Component {
                 <EuiFlexItem component="div">
                   <EuiText>
                     <h3>Your tasks</h3>
-                    {<TaskList tasks={this.state.demoTasks} />}
+                    <TaskList tasks={this.state.demoTasks} trash={this.trash} />
                     <h3>Built-in tasks</h3>
-                    {<TaskList tasks={this.state.builtInTasks} />}
+                    <TaskList tasks={this.state.builtInTasks} />
                   </EuiText>
                 </EuiFlexItem>
               </EuiFlexGroup>

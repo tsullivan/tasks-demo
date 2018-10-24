@@ -1,12 +1,27 @@
 import React from 'react';
-import { EuiBasicTable } from '@elastic/eui';
+import moment from 'moment';
+import { EuiBasicTable, EuiLink, EuiToolTip, EuiIcon } from '@elastic/eui';
 
 export function TaskList(props) {
   if (!props.tasks) {
     return null;
   }
 
+  const trash = id => props.trash(id);
+
   const columns = [
+    {
+      field: 'id',
+      sortable: false,
+      render: id =>
+        props.trash ? (
+          <EuiToolTip position="bottom" content="Delete">
+            <EuiLink onClick={() => trash(id)}>
+              <EuiIcon type="trash" />
+            </EuiLink>
+          </EuiToolTip>
+        ) : null,
+    },
     { field: 'id', name: 'ID', sortable: false },
     { field: 'interval', name: 'Interval', sortable: true },
     { field: 'attempts', name: 'Attempts', sortable: true },
