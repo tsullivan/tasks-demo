@@ -1,7 +1,7 @@
 {
-  "name": "monitoring_alerter",
+  "name": "tasks-demo",
   "version": "0.0.0",
-  "description": "Monitoring Alerter",
+  "description": "Tasks Demo",
   "main": "index.js",
   "kibana": {
     "version": "kibana",

@@ -14,15 +14,15 @@ import {
   TASK_CHECK_LICENSE_ID,
 } from './constants';
 
-export default function monitoringAlerter(kibana) {
+export default function tasksDemo(kibana) {
   return new kibana.Plugin({
     require: ['elasticsearch', 'task_manager', 'monitoring', 'notifications'],
     name: PLUGIN_NAME,
     uiExports: {
       app: {
-        title: 'Monitoring Alerter',
-        description: 'Alerter for Monitoring Alerts in Monitoring',
-        main: 'plugins/monitoring_alerter/app',
+        title: 'Tasks Demo',
+        description: 'Demo Task Manager',
+        main: 'plugins/tasks-demo/app',
         styleSheetPath: require('path').resolve(__dirname, 'public/app.scss'),
       },
     },

@@ -1,6 +1,6 @@
-# monitoring-alerter
+# tasks-demo
 
-> Monitoring Alerter
+> Tasks Demo
 
 ---
 

@@ -32,12 +32,12 @@ export class Main extends React.Component {
   componentDidMount() {
     const { httpClient } = this.props;
     setInterval(() => {
-      httpClient.get('../api/monitoring-alerter/get_demo_tasks').then(({ data }) => {
+      httpClient.get('../api/tasks-demo/get_demo_tasks').then(({ data }) => {
         this.setState({ demoTasks: data.tasks });
       });
     }, 1400);
     setInterval(() => {
-      httpClient.get('../api/monitoring-alerter/get_builtin_tasks').then(({ data }) => {
+      httpClient.get('../api/tasks-demo/get_builtin_tasks').then(({ data }) => {
         this.setState({ builtInTasks: data.tasks });
       });
     }, 1400);
@@ -47,7 +47,7 @@ export class Main extends React.Component {
     // send
     const { httpClient } = this.props;
     httpClient
-      .post('../api/monitoring-alerter/schedule_demo_task', payload)
+      .post('../api/tasks-demo/schedule_demo_task', payload)
       .then(({ data }) => {
         this.setState({ postResult: data.result });
       });
@@ -55,7 +55,7 @@ export class Main extends React.Component {
 
   trash(id) {
     const { httpClient } = this.props;
-    httpClient.post(`../api/monitoring-alerter/delete_demo_task`, { id });
+    httpClient.post(`../api/tasks-demo/delete_demo_task`, { id });
   }
 
   render() {

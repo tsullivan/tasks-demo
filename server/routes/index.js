@@ -5,7 +5,7 @@ export function routes(server) {
   const { taskManager } = server;
 
   server.route({
-    path: '/api/monitoring-alerter/get_demo_tasks',
+    path: '/api/tasks-demo/get_demo_tasks',
     method: 'GET',
     async handler(req, reply) {
       try {
@@ -39,7 +39,7 @@ export function routes(server) {
   });
 
   server.route({
-    path: '/api/monitoring-alerter/get_builtin_tasks',
+    path: '/api/tasks-demo/get_builtin_tasks',
     method: 'GET',
     async handler(req, reply) {
       try {
@@ -67,7 +67,7 @@ export function routes(server) {
   });
 
   server.route({
-    path: '/api/monitoring-alerter/schedule_demo_task',
+    path: '/api/tasks-demo/schedule_demo_task',
     method: 'POST',
     async handler(req, reply) {
       try {
@@ -98,7 +98,7 @@ export function routes(server) {
   });
 
   server.route({
-    path: '/api/monitoring-alerter/delete_demo_task',
+    path: '/api/tasks-demo/delete_demo_task',
     method: 'POST',
     async handler(req, reply) {
       try {
@@ -113,7 +113,7 @@ export function routes(server) {
   });
 
   server.route({
-    path: '/api/monitoring-alerter/cluster_status',
+    path: '/api/tasks-demo/cluster_status',
     method: 'GET',
     async handler(req, reply) {
       try {
@@ -129,7 +129,7 @@ export function routes(server) {
   });
 
   server.route({
-    path: '/api/monitoring-alerter/license',
+    path: '/api/tasks-demo/license',
     method: 'GET',
     async handler(req, reply) {
       try {
