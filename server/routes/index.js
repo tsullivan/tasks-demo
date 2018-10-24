@@ -16,7 +16,19 @@ export function routes(server) {
         });
 
         const data = {
-          tasks: tasks.docs,
+          tasks: tasks.docs.map(t => ({
+            id: t.id,
+            interval: t.interval,
+            attempts: t.attempts,
+            runAt: t.runAt,
+            params: {
+              index: t.params.index,
+              query: t.params.query,
+              threshold: t.params.threshold,
+            },
+            state: t.state,
+            status: t.status,
+          })),
         };
 
         reply(data);
@@ -38,7 +50,13 @@ export function routes(server) {
         });
 
         const data = {
-          tasks: tasks.docs,
+          tasks: tasks.docs.map(t => ({
+            id: t.id,
+            interval: t.interval,
+            attempts: t.attempts,
+            runAt: t.runAt,
+            status: t.status,
+          })),
         };
 
         reply(data);
@@ -52,14 +70,17 @@ export function routes(server) {
     path: '/api/monitoring-alerter/schedule_demo_task',
     method: 'POST',
     async handler(req, reply) {
-      console.log(JSON.stringify(req.payload));
       try {
+        const { index, query, threshold } = req.payload;
+
         const taskInstance = await taskManager.schedule({
           taskType: FORM_SCHEDULER,
           scope: PLUGIN_NAME + '-ui',
           interval: req.payload.interval,
           params: {
-            ...req.payload,
+            index,
+            query,
+            threshold,
             headers: req.headers, // callWithRequest only cares about request headers
           },
         });

@@ -41,7 +41,7 @@ export default function monitoringAlerter(kibana) {
           title: `Tasks scheduled through the demo UI`,
           createTaskRunner(context) {
             return {
-              run: runFreeformTask(server, context),
+              run: runFreeformTask(context),
             };
           },
         },

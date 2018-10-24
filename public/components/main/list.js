@@ -26,15 +26,27 @@ export function TaskList(props) {
     { field: 'interval', name: 'Interval', sortable: true },
     { field: 'attempts', name: 'Attempts', sortable: true },
     { field: 'runAt', name: 'Run At', sortable: true },
-    { field: 'state', name: 'State', sortable: false },
+    {
+      field: 'params',
+      name: 'Params',
+      sortable: false,
+      render: params => (params ? JSON.stringify(params) : '-'),
+    },
+    {
+      field: 'state',
+      name: 'State',
+      sortable: false,
+      render: state => (state ? JSON.stringify(state) : '-'),
+    },
     { field: 'status', name: 'Status', sortable: true },
   ];
 
   const items = props.tasks.map(t => ({
-    id: t.id.slice(0, 12) + '...',
+    id: t.id,
     attempts: t.attempts,
     interval: t.interval || 'n/a',
-    runAt: t.runAt,
+    runAt: moment(t.runAt).format('MM/DD h:mm:ss a'),
+    params: t.params,
     state: t.state,
     status: t.status,
     scope: t.scope,
