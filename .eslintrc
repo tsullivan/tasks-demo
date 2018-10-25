@@ -10,4 +10,4 @@ rules:
 settings:
   import/resolver:
     '@elastic/eslint-import-resolver-kibana':
-      rootPackageName: 'monitoring_alerter'
+      rootPackageName: 'tasks-demo'
