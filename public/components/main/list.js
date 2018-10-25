@@ -24,7 +24,7 @@ export function TaskList(props) {
     },
     { field: 'id', name: 'ID', sortable: false },
     { field: 'interval', name: 'Interval', sortable: true },
-    { field: 'attempts', name: 'Attempts', sortable: true },
+    { field: 'attempts', name: 'Failed Attempts', sortable: true },
     { field: 'runAt', name: 'Run At', sortable: true },
     {
       field: 'params',
