@@ -12,7 +12,39 @@ import {
   TASK_CHECK_LICENSE,
   TASK_CHECK_CLUSTER_ID,
   TASK_CHECK_LICENSE_ID,
+  ALERTS_INDEX_NAME,
+  ALERTS_INDEX_TYPE,
 } from './constants';
+
+const ALERTS_INDEX_TEMPLATE = {
+  body: {
+    index_patterns: [ALERTS_INDEX_NAME],
+    mappings: {
+      [ALERTS_INDEX_TYPE]: {
+        properties: {
+          timestamp: { type: 'date' },
+          query: { type: 'keyword' },
+          threshold: { type: 'float' },
+          hits: { type: 'integer' },
+        },
+      },
+    },
+    settings: { number_of_shards: 5 },
+  },
+  name: `${ALERTS_INDEX_NAME}-template`,
+};
+
+function putTemplate(server, plugin) {
+  return async () => {
+    try {
+      const { callWithInternalUser } = server.plugins.elasticsearch.getCluster('data');
+      await callWithInternalUser('indices.putTemplate', ALERTS_INDEX_TEMPLATE);
+    } catch (err) {
+      plugin.status.red('Could not put the alerts template!!!');
+      throw new Error('Could not put the alerts template!!!\n' + err.message);
+    }
+  };
+}
 
 export default function tasksDemo(kibana) {
   return new kibana.Plugin({
@@ -64,6 +96,8 @@ export default function tasksDemo(kibana) {
           },
         },
       });
+
+      server.plugins.elasticsearch.status.on('green', putTemplate(server, this));
 
       this.status.yellow('Waiting for task manager service');
 
