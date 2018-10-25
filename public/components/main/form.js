@@ -1,12 +1,5 @@
 import React from 'react';
-import {
-  EuiForm,
-  EuiFormRow,
-  EuiFieldText,
-  EuiSelect,
-  EuiSwitch,
-  EuiButton,
-} from '@elastic/eui';
+import { EuiForm, EuiFormRow, EuiFieldText, EuiSelect, EuiButton } from '@elastic/eui';
 
 export class ScheduleForm extends React.Component {
   constructor(props) {
@@ -17,8 +10,6 @@ export class ScheduleForm extends React.Component {
       query: null,
       threshold: null,
       interval: null,
-      allowSnooze: false,
-      snoozeTime: null,
       isValid: true,
       validationMessage: null,
     };
@@ -27,8 +18,6 @@ export class ScheduleForm extends React.Component {
     this.onChangeQuery = this.onChangeQuery.bind(this);
     this.onChangeThreshold = this.onChangeThreshold.bind(this);
     this.onChangeInterval = this.onChangeInterval.bind(this);
-    this.onChangeAllowSnooze = this.onChangeAllowSnooze.bind(this);
-    this.onChangeSnoozeTime = this.onChangeSnoozeTime.bind(this);
     this.validateAndSend = this.validateAndSend.bind(this);
   }
 
@@ -52,16 +41,6 @@ export class ScheduleForm extends React.Component {
     this.setState({ isValid: true, interval });
   }
 
-  onChangeAllowSnooze() {
-    const allowSnooze = !this.state.allowSnooze;
-    this.setState({ isValid: true, allowSnooze });
-  }
-
-  onChangeSnoozeTime(event) {
-    const snoozeTime = event.target.value;
-    this.setState({ isValid: true, snoozeTime });
-  }
-
   validateAndSend(event) {
     const state = this.state;
 
@@ -82,14 +61,6 @@ export class ScheduleForm extends React.Component {
       this.setState({ isValid: false, validationMessage: 'Enter an interval value' });
       ok = false;
     }
-    if (state.allowSnooze && state.snoozeTime == null) {
-      this.setState({
-        isValid: false,
-        validationMessage: 'Enter a snooze time value, or un-check "allow snooze"',
-      });
-      ok = false;
-    }
-
     if (ok) {
       const state = this.state;
       const payload = {
@@ -97,8 +68,6 @@ export class ScheduleForm extends React.Component {
         query: state.query,
         threshold: state.threshold,
         interval: state.interval,
-        allow_snooze: state.allowSnooze,
-        snooze_time: state.snoozeTime,
       };
       this.props.sendScheduleData(payload);
     }
@@ -107,20 +76,6 @@ export class ScheduleForm extends React.Component {
   }
 
   render() {
-    const snoozesFor = this.state.allowSnooze ? (
-      <EuiFormRow label="Snooze Time">
-        <EuiSelect
-          hasNoInitialSelection
-          options={[
-            { value: '9m', text: '9 minutes' },
-            { value: '25m', text: '25 minutes' },
-            { value: '60m', text: '1 hour' },
-          ]}
-          onChange={this.onChangeSnoozeTime}
-        />
-      </EuiFormRow>
-    ) : null;
-
     return (
       <form method="POST" onSubmit={this.validateAndSend}>
         <EuiForm
@@ -153,16 +108,6 @@ export class ScheduleForm extends React.Component {
               onChange={this.onChangeInterval}
             />
           </EuiFormRow>
-
-          <EuiFormRow label="Snooze">
-            <EuiSwitch
-              label="Allow snooze?"
-              checked={this.state.allowSnooze}
-              onChange={this.onChangeAllowSnooze}
-            />
-          </EuiFormRow>
-
-          {snoozesFor}
 
           <EuiButton type="submit" fill>
             Schedule task
