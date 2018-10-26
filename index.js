@@ -25,7 +25,13 @@ const ALERTS_INDEX_TEMPLATE = {
           timestamp: { type: 'date' },
           query: { type: 'keyword' },
           threshold: { type: 'float' },
-          hits: { type: 'integer' },
+          hits: {
+            properties: {
+              total: {
+                type: 'integer',
+              },
+            },
+          },
         },
       },
     },

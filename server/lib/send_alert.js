@@ -1,9 +1,25 @@
-// import {
-//   ALERTS_INDEX_NAME,
-//   ALERTS_INDEX_TYPE,
-//   ALERTS_INDEX_MAPPING,
-// } from '../../constants';
+import { ALERTS_INDEX_NAME, ALERTS_INDEX_TYPE } from '../../constants';
 
-export async function sendAlert(/* server, hits, params, state */) {
+export async function sendAlert(server, hits, params /*, state*/) {
+  const { callWithInternalUser } = server.plugins.elasticsearch.getCluster('data');
+  try {
+    const alertDoc = await callWithInternalUser('index', {
+      index: ALERTS_INDEX_NAME,
+      type: ALERTS_INDEX_TYPE,
+      body: {
+        timestamp: new Date(),
+        query: params.query,
+        threshold: params.threshold,
+        hits: {
+          total: hits.total,
+          contents: hits.hits,
+        },
+      },
+    });
+    console.log(JSON.stringify(alertDoc));
+  } catch (err) {
+    throw new Error('Storing alert document failed!!!');
+  }
+
   return true;
 }

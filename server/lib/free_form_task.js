@@ -15,9 +15,9 @@ export function runFreeformTask({ kbnServer, taskInstance }) {
         body: { query: { query_string: { query } } },
       });
 
-      const hits = results.hits.total;
+      const hits = results.hits;
 
-      if (hits >= threshold) {
+      if (hits.total >= threshold) {
         await sendAlert(server, hits, params, state);
       }
 
