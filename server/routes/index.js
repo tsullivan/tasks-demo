@@ -1,3 +1,4 @@
+import Boom from 'boom';
 import { checkClusterStatus, checkLicenseStatus } from '../lib';
 import { FORM_SCHEDULER, PLUGIN_NAME } from '../../constants';
 
@@ -7,7 +8,7 @@ export function routes(server) {
   server.route({
     path: '/api/tasks-demo/get_demo_tasks',
     method: 'GET',
-    async handler(req, reply) {
+    async handler() {
       try {
         const tasks = await taskManager.fetch({
           query: {
@@ -31,9 +32,9 @@ export function routes(server) {
           })),
         };
 
-        reply(data);
+        return data;
       } catch (err) {
-        reply(err);
+        return err;
       }
     },
   });
@@ -41,7 +42,7 @@ export function routes(server) {
   server.route({
     path: '/api/tasks-demo/get_builtin_tasks',
     method: 'GET',
-    async handler(req, reply) {
+    async handler() {
       try {
         const tasks = await taskManager.fetch({
           query: {
@@ -59,9 +60,9 @@ export function routes(server) {
           })),
         };
 
-        reply(data);
+        return data;
       } catch (err) {
-        reply(err);
+        return Boom.wrap(err);
       }
     },
   });
@@ -69,7 +70,7 @@ export function routes(server) {
   server.route({
     path: '/api/tasks-demo/schedule_demo_task',
     method: 'POST',
-    async handler(req, reply) {
+    async handler(req) {
       try {
         const { index, query, threshold } = req.payload;
 
@@ -90,9 +91,9 @@ export function routes(server) {
           taskInstance,
         };
 
-        reply(data);
+        return data;
       } catch (err) {
-        reply(err);
+        return Boom.wrap(err);
       }
     },
   });
@@ -100,14 +101,14 @@ export function routes(server) {
   server.route({
     path: '/api/tasks-demo/delete_demo_task',
     method: 'POST',
-    async handler(req, reply) {
+    async handler(req) {
       try {
         const result = await taskManager.remove(req.payload.id);
         const data = { result };
 
-        reply(data);
+        return data;
       } catch (err) {
-        reply(err);
+        return Boom.wrap(err);
       }
     },
   });
@@ -115,15 +116,15 @@ export function routes(server) {
   server.route({
     path: '/api/tasks-demo/cluster_status',
     method: 'GET',
-    async handler(req, reply) {
+    async handler(req) {
       try {
         const { server } = req;
         const { callWithInternalUser } = server.plugins.elasticsearch.getCluster(
           'monitoring'
         );
-        reply(checkClusterStatus(callWithInternalUser));
+        return checkClusterStatus(callWithInternalUser);
       } catch (err) {
-        reply(err);
+        return Boom.wrap(err);
       }
     },
   });
@@ -131,15 +132,15 @@ export function routes(server) {
   server.route({
     path: '/api/tasks-demo/license',
     method: 'GET',
-    async handler(req, reply) {
+    async handler(req) {
       try {
         const { server } = req;
         const { callWithInternalUser } = server.plugins.elasticsearch.getCluster(
           'monitoring'
         );
-        reply(checkLicenseStatus(callWithInternalUser));
+        return checkLicenseStatus(callWithInternalUser);
       } catch (err) {
-        reply(err);
+        return Boom.wrap(err);
       }
     },
   });

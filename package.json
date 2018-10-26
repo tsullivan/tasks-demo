@@ -34,6 +34,7 @@
     "prettier": "1.12.1"
   },
   "dependencies": {
+    "boom": "^7.2.0",
     "lodash": "3.10.1",
     "moment": "^2.22.2"
   }
