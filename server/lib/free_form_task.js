@@ -6,15 +6,18 @@ export function runFreeformTask({ kbnServer, taskInstance }) {
 
   return async () => {
     const { params, state } = taskInstance;
-    const { index, query, headers, threshold } = params;
+    const { index, query, headers, threshold, failMe } = params;
     const runs = state.runs || 0;
+
+    if (failMe) {
+      throw new Error(`Failing "${taskInstance.id}": it is configured to fail!`);
+    }
 
     try {
       const results = await callWithRequest({ headers }, 'search', {
         index,
         body: { query: { query_string: { query } } },
       });
-
       const hits = results.hits;
 
       if (hits.total >= threshold) {

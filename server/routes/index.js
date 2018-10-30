@@ -4,8 +4,8 @@ import {
   checkLicenseStatusRoute,
 } from './builtin_tasks';
 import {
-  getDemoTasksRoute,
   scheduleDemoTaskRoute,
+  getDemoTasksRoute,
   deleteDemoTasksRoute,
 } from './demo_tasks';
 

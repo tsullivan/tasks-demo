@@ -1,5 +1,12 @@
 import React from 'react';
-import { EuiForm, EuiFormRow, EuiFieldText, EuiSelect, EuiButton } from '@elastic/eui';
+import {
+  EuiForm,
+  EuiFormRow,
+  EuiFieldText,
+  EuiSelect,
+  EuiButton,
+  EuiSwitch,
+} from '@elastic/eui';
 
 export class ScheduleForm extends React.Component {
   constructor(props) {
@@ -10,6 +17,8 @@ export class ScheduleForm extends React.Component {
       query: null,
       threshold: null,
       interval: null,
+      firstRun: null,
+      failMe: false,
       isValid: true,
       validationMessage: null,
     };
@@ -18,6 +27,8 @@ export class ScheduleForm extends React.Component {
     this.onChangeQuery = this.onChangeQuery.bind(this);
     this.onChangeThreshold = this.onChangeThreshold.bind(this);
     this.onChangeInterval = this.onChangeInterval.bind(this);
+    this.onChangeFirstRun = this.onChangeFirstRun.bind(this);
+    this.onChangeFailMe = this.onChangeFailMe.bind(this);
     this.validateAndSend = this.validateAndSend.bind(this);
   }
 
@@ -41,6 +52,16 @@ export class ScheduleForm extends React.Component {
     this.setState({ isValid: true, interval });
   }
 
+  onChangeFirstRun(event) {
+    const firstRun = event.target.value;
+    this.setState({ isValid: true, firstRun });
+  }
+
+  onChangeFailMe() {
+    const failMe = !this.state.failMe;
+    this.setState({ isValid: true, failMe });
+  }
+
   validateAndSend(event) {
     const state = this.state;
 
@@ -61,6 +82,11 @@ export class ScheduleForm extends React.Component {
       this.setState({ isValid: false, validationMessage: 'Enter an interval value' });
       ok = false;
     }
+    if (state.firstRun == null) {
+      this.setState({ isValid: false, validationMessage: 'Enter an first run value' });
+      ok = false;
+    }
+
     if (ok) {
       const state = this.state;
       const payload = {
@@ -68,6 +94,8 @@ export class ScheduleForm extends React.Component {
         query: state.query,
         threshold: state.threshold,
         interval: state.interval,
+        firstRun: state.firstRun,
+        failMe: state.failMe,
       };
       this.props.sendScheduleData(payload);
     }
@@ -106,6 +134,26 @@ export class ScheduleForm extends React.Component {
                 { value: '10m', text: '10 minutes' },
               ]}
               onChange={this.onChangeInterval}
+            />
+          </EuiFormRow>
+
+          <EuiFormRow label="First run">
+            <EuiSelect
+              hasNoInitialSelection
+              options={[
+                { value: 'immediately', text: 'immediately' },
+                { value: '5m', text: '5 minutes' },
+                { value: '10m', text: '10 minutes' },
+              ]}
+              onChange={this.onChangeFirstRun}
+            />
+          </EuiFormRow>
+
+          <EuiFormRow>
+            <EuiSwitch
+              label="Make me fail?"
+              checked={this.state.failMe}
+              onChange={this.onChangeFailMe}
             />
           </EuiFormRow>
 
