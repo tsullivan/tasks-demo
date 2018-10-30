@@ -8,11 +8,10 @@ export function TaskList(props) {
   }
 
   const trash = id => props.trash(id);
-
   const columns = [
     {
       field: 'id',
-      sortable: false,
+      truncateText: true,
       render: id =>
         props.trash ? (
           <EuiToolTip position="bottom" content="Delete">
@@ -22,23 +21,21 @@ export function TaskList(props) {
           </EuiToolTip>
         ) : null,
     },
-    { field: 'id', name: 'ID', sortable: false },
-    { field: 'interval', name: 'Interval', sortable: true },
-    { field: 'attempts', name: 'Failed Attempts', sortable: true },
-    { field: 'runAt', name: 'Run At', sortable: true },
+    { field: 'id', name: 'ID' },
+    { field: 'interval', name: 'Interval' },
+    { field: 'attempts', name: 'Failed Attempts' },
+    { field: 'runAt', name: 'Run At' },
     {
       field: 'params',
       name: 'Params',
-      sortable: false,
       render: params => (params ? JSON.stringify(params) : '-'),
     },
     {
       field: 'state',
       name: 'State',
-      sortable: false,
       render: state => (state ? JSON.stringify(state) : '-'),
     },
-    { field: 'status', name: 'Status', sortable: true },
+    { field: 'status', name: 'Status' },
   ];
 
   const items = props.tasks.map(t => ({
