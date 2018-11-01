@@ -18,7 +18,6 @@ import {
 
 const ALERTS_INDEX_TEMPLATE = {
   body: {
-    index_patterns: [ALERTS_INDEX_NAME],
     mappings: {
       [ALERTS_INDEX_TYPE]: {
         properties: {
@@ -37,14 +36,14 @@ const ALERTS_INDEX_TEMPLATE = {
     },
     settings: { number_of_shards: 5 },
   },
-  name: `${ALERTS_INDEX_NAME}-template`,
+  index: `${ALERTS_INDEX_NAME}`,
 };
 
-function putTemplate(server, plugin) {
+function putSettings(server, plugin) {
   return async () => {
     try {
       const { callWithInternalUser } = server.plugins.elasticsearch.getCluster('data');
-      await callWithInternalUser('indices.putTemplate', ALERTS_INDEX_TEMPLATE);
+      await callWithInternalUser('indices.create', ALERTS_INDEX_TEMPLATE);
     } catch (err) {
       plugin.status.red('Could not put the alerts template!!!');
       throw new Error('Could not put the alerts template!!!\n' + err.message);
@@ -103,7 +102,7 @@ export default function tasksDemo(kibana) {
         },
       });
 
-      server.plugins.elasticsearch.status.on('green', putTemplate(server, this));
+      server.plugins.elasticsearch.status.on('green', putSettings(server, this));
 
       this.status.yellow('Waiting for task manager service');
 
