@@ -5,6 +5,7 @@ import { alertLicenseExpiration } from './alert_license_expiration';
 
 export async function checkLicenseStatus(callWithInternalUser) {
   const params = {
+    index: '.monitoring-es-*',
     size: 100,
     filterPath: [
       'hits.hits._source.cluster_uuid',

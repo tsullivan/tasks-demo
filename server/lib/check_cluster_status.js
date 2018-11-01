@@ -5,6 +5,7 @@ import { alertClusterStatus } from './alert_cluster_status';
 
 export async function checkClusterStatus(callWithInternalUser) {
   const params = {
+    index: '.monitoring-es-*',
     size: 100,
     filterPath: [
       'hits.hits._source.cluster_uuid',
