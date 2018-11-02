@@ -4,6 +4,9 @@ export function runFreeformTask({ kbnServer, taskInstance }) {
   const { server } = kbnServer;
   const { callWithRequest } = server.plugins.elasticsearch.getCluster('data');
 
+  const { notificationService } = server.plugins.notifications;
+  const loggerAction = notificationService.getActionForId('xpack-notifications-logger');
+
   return async () => {
     const { params, state } = taskInstance;
     const { index, query, headers, threshold, failMe } = params;
@@ -21,6 +24,11 @@ export function runFreeformTask({ kbnServer, taskInstance }) {
       const hits = results.hits;
 
       if (hits.total >= threshold) {
+        await loggerAction.performAction({
+          message: `${taskInstance.id} hit its threshold! Hits: ${
+            hits.total
+          } Threshold: ${threshold}`,
+        });
         await sendAlert(server, hits, params, state);
       }
 

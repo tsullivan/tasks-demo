@@ -15,7 +15,7 @@ const getSeverity = daysTo => {
 
 export async function alertLicenseExpiration(server, taskInstance, state) {
   const { notificationService } = server.plugins.notifications;
-  const action = notificationService.getActionForId('xpack-notifications-logger');
+  const loggerAction = notificationService.getActionForId('xpack-notifications-logger');
 
   for (const clusterUuid of Object.keys(state)) {
     const cluster = state[clusterUuid];
@@ -31,13 +31,13 @@ export async function alertLicenseExpiration(server, taskInstance, state) {
 
       switch (severity) {
         case SEV_CRITICAL:
-          result = action.performAction({
+          result = loggerAction.performAction({
             ...baseAction,
             message: `${clusterPre} is expired! ${expirationPost}`,
           });
           break;
         case SEV_MEDIUM:
-          result = action.performAction({
+          result = loggerAction.performAction({
             ...baseAction,
             message: `${clusterPre} expires in less than 10 days!! ${expirationPost}`,
           });
@@ -45,7 +45,7 @@ export async function alertLicenseExpiration(server, taskInstance, state) {
       }
     }
 
-    // save the time a notification action was performed, if one was
+    // save the time a notification loggerAction was performed, if one was
     const { error, ok: alertSuccess } = await result;
     if (error) {
       server.log(
