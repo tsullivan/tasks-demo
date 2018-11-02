@@ -16,7 +16,7 @@ import {
   ALERTS_INDEX_TYPE,
 } from './constants';
 
-const ALERTS_INDEX_TEMPLATE = {
+const ALERTS_INDEX_SETTINGS = {
   body: {
     mappings: {
       [ALERTS_INDEX_TYPE]: {
@@ -43,10 +43,21 @@ function putSettings(server, plugin) {
   return async () => {
     try {
       const { callWithInternalUser } = server.plugins.elasticsearch.getCluster('data');
-      await callWithInternalUser('indices.create', ALERTS_INDEX_TEMPLATE);
+      await callWithInternalUser('indices.create', ALERTS_INDEX_SETTINGS);
     } catch (err) {
-      plugin.status.red('Could not put the alerts template!!!');
-      throw new Error('Could not put the alerts template!!!\n' + err.message);
+      if (err.status === 400) {
+        server.log(
+          ['info', PLUGIN_NAME],
+          `Did not auto-create an alerts index: ${err.message}`
+        );
+      } else {
+        plugin.status.red('Could not create the alerts index!!!');
+        throw new Error(
+          `Could not create the alerts index!!!\n${
+            err.message
+          }\nElasticsearch error: ${err.toString()}`
+        );
+      }
     }
   };
 }
