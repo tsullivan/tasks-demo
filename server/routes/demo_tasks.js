@@ -26,7 +26,7 @@ export function scheduleDemoTaskRoute(server, taskManager) {
             index,
             query,
             threshold,
-            headers: req.headers, // callWithRequest only cares about request headers
+            headers: req.headers, // FIXME Never do this! Stores cookie/credentials in plaintext
             failMe,
           },
         });

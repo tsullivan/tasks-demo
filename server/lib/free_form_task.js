@@ -17,6 +17,7 @@ export function runFreeformTask({ kbnServer, taskInstance }) {
     }
 
     try {
+      // FIXME this uses credentials stored in plaintext lol
       const results = await callWithRequest({ headers }, 'search', {
         index,
         body: { query: { query_string: { query } } },
