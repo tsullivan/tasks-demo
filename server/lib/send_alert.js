@@ -11,12 +11,10 @@ export async function sendAlert(server, hits, params /*, state*/) {
         query: params.query,
         threshold: params.threshold,
         hits: {
-          total: hits.total,
-          contents: hits.hits,
+          total: hits.total
         },
       },
     });
-    console.log(JSON.stringify(alertDoc));
   } catch (err) {
     throw new Error('Storing alert document failed!!!');
   }

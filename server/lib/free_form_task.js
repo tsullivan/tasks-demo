@@ -24,7 +24,7 @@ export function runFreeformTask({ kbnServer, taskInstance }) {
         await sendAlert(server, hits, params, state);
       }
 
-      return { state: { ran: true, runs: runs + 1, hits } };
+      return { state: { ran: true, runs: runs + 1, hits_total: hits.total } };
     } catch (err) {
       return { state: { ran: false, error: err.message } };
     }
