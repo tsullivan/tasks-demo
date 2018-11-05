@@ -7,5 +7,5 @@ export const TASK_CHECK_LICENSE = 'check_license_expiration';
 export const TASK_CHECK_CLUSTER_ID = 'tasks_demo_check_cluster_status';
 export const TASK_CHECK_LICENSE_ID = 'tasks_demo_check_xpack_license';
 
-export const ALERTS_INDEX_NAME = '.kibana_task_alerts';
+export const ALERTS_INDEX_NAME = '.kibana_my_demo_alerts';
 export const ALERTS_INDEX_TYPE = '_doc';
