@@ -81,13 +81,6 @@ const registerTaskDefinitions = taskManager => {
           run: checkClusterStatusTask(context),
         };
       },
-      static: [
-        {
-          id: TASK_CHECK_CLUSTER_ID,
-          taskType: TASK_CHECK_CLUSTER,
-          scope: PLUGIN_NAME + '-builtin',
-        },
-      ],
     },
     [TASK_CHECK_LICENSE]: {
       type: PLUGIN_NAME,
@@ -97,13 +90,6 @@ const registerTaskDefinitions = taskManager => {
           run: checkLicenseStatusTask(context),
         };
       },
-      static: [
-        {
-          id: TASK_CHECK_LICENSE_ID,
-          taskType: TASK_CHECK_LICENSE,
-          scope: PLUGIN_NAME + '-builtin',
-        },
-      ],
     },
   });
 };
@@ -133,6 +119,46 @@ export default function tasksDemo(kibana) {
       const { taskManager } = server;
       registerTaskDefinitions(taskManager);
       routes(server);
+
+      this.kbnServer.afterPluginsInit(async () => {
+        this.status.yellow('Adding tasks');
+
+        let taskCheckClusterId;
+        let taskCheckLicenseId;
+        try {
+          ({ id: taskCheckClusterId } = await taskManager.schedule({
+            id: TASK_CHECK_CLUSTER_ID,
+            taskType: TASK_CHECK_CLUSTER,
+            scope: PLUGIN_NAME + '-builtin',
+          }));
+          server.log(
+            ['info', PLUGIN_NAME],
+            `${TASK_CHECK_CLUSTER} task: [${taskCheckClusterId}] scheduled`
+          );
+
+          ({ id: taskCheckLicenseId } = await taskManager.schedule({
+            id: TASK_CHECK_LICENSE_ID,
+            taskType: TASK_CHECK_LICENSE,
+            scope: PLUGIN_NAME + '-builtin',
+          }));
+          server.log(
+            ['info', PLUGIN_NAME],
+            `${TASK_CHECK_LICENSE} task: [${taskCheckLicenseId}] scheduled`
+          );
+
+          this.status.green('Ready');
+        } catch (err) {
+          server.log(
+            ['error', PLUGIN_NAME],
+            `Tasks could not be configured: ${err.message}`
+          );
+          if (taskCheckClusterId && taskCheckLicenseId) {
+            await taskManager.remove(taskCheckClusterId);
+            await taskManager.remove(taskCheckLicenseId);
+          }
+          this.status.red(err.message);
+        }
+      });
     },
   });
 }
