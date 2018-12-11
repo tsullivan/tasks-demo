@@ -1,4 +1,4 @@
-import { FAIL_EVERY } from './../../constants';
+import { FAIL_EVERY } from '../../../constants';
 import { sendAlert } from './send_alert';
 
 export function runFreeformTask({ kbnServer, taskInstance }) {
@@ -14,7 +14,7 @@ export function runFreeformTask({ kbnServer, taskInstance }) {
     const runs = state.runs || 0;
 
     const nextRuns = runs + 1;
-    if (failMe && nextRuns % 3 === 0) {
+    if (failMe && nextRuns % FAIL_EVERY === 0) {
       throw new Error(`Failing "${taskInstance.id}": it is configured to fail!`);
     }
 

@@ -1,9 +1,9 @@
 import moment from 'moment';
 import { get } from 'lodash';
-import { nextRun } from './next_run';
-import { alertClusterStatus } from './alert_cluster_status';
+import { nextRun } from '../next_run';
+import { alertLicenseExpiration } from './alert_license_expiration';
 
-export async function checkClusterStatus(callWithInternalUser) {
+export async function checkLicenseStatus(callWithInternalUser) {
   const params = {
     index: '.monitoring-es-*',
     size: 100,
@@ -11,7 +11,7 @@ export async function checkClusterStatus(callWithInternalUser) {
       'hits.hits._source.cluster_uuid',
       'hits.hits._source.cluster_name',
       'hits.hits._source.timestamp',
-      'hits.hits._source.cluster_state.status',
+      'hits.hits._source.license',
     ],
     body: {
       query: { term: { type: { value: 'cluster_stats' } } },
@@ -22,21 +22,31 @@ export async function checkClusterStatus(callWithInternalUser) {
 
   const response = await callWithInternalUser('search', params);
   return get(response, 'hits.hits', []).reduce((accum, { _source: source }) => {
-    const clusterStatus = source.cluster_state.status;
+    const { license } = source;
+    const daysTo = Math.ceil(
+      moment
+        .duration(moment.utc(license.expiry_date_in_millis) - moment.utc())
+        .as('days')
+    );
     return {
       ...accum,
       [source.cluster_uuid]: {
         cluster_name: source.cluster_name,
         timestamp: source.timestamp,
-        status: clusterStatus,
-        isRed: clusterStatus === 'red',
-        isYellow: clusterStatus === 'yellow',
+        license: license.type,
+        expiry: {
+          millis: license.expiry_date_in_millis,
+          date: license.expiry_date,
+          days_to: daysTo,
+        },
+        is_expired: daysTo < 1,
+        is_expiring_soon: daysTo > 0 && daysTo < 11,
       },
     };
   }, {});
 }
 
-export function checkClusterStatusTask({ kbnServer, taskInstance }) {
+export function checkLicenseStatusTask({ kbnServer, taskInstance }) {
   const { server } = kbnServer;
   const { callWithInternalUser } = server.plugins.elasticsearch.getCluster(
     'monitoring'
@@ -44,17 +54,17 @@ export function checkClusterStatusTask({ kbnServer, taskInstance }) {
 
   return async () => {
     const runStart = moment.utc();
-    const state = await checkClusterStatus(callWithInternalUser);
+    const state = await checkLicenseStatus(callWithInternalUser);
 
     // perform an alert
     if (server.plugins.notifications) {
-      alertClusterStatus(server, taskInstance, state);
+      alertLicenseExpiration(server, taskInstance, state);
     }
 
     return {
       state: {
-        lastRan: runStart,
-        lastState: state,
+        last_ran: runStart,
+        last_state: state,
       },
       runAt: nextRun(),
     };

@@ -1,3 +1,3 @@
-export { checkClusterStatus, checkClusterStatusTask } from './check_cluster_status';
-export { checkLicenseStatus, checkLicenseStatusTask } from './check_license_expiration';
-export { runFreeformTask } from './free_form_task';
+export { checkClusterStatus, checkClusterStatusTask } from './cluster_status';
+export { checkLicenseStatus, checkLicenseStatusTask } from './license_expiration';
+export { runFreeformTask } from './free_form';
