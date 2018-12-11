@@ -53,8 +53,8 @@ export function checkClusterStatusTask({ kbnServer, taskInstance }) {
 
     return {
       state: {
-        lastRan: runStart,
-        lastState: state,
+        last_ran: runStart,
+        last_state: state,
       },
       runAt: nextRun(),
     };
