@@ -4,7 +4,7 @@
   "description": "Tasks Demo",
   "main": "index.js",
   "kibana": {
-    "version": "kibana",
+    "version": "7.0.0",
     "templateVersion": "1.0.0"
   },
   "scripts": {
@@ -18,10 +18,11 @@
   },
   "devDependencies": {
     "@elastic/eslint-config-kibana": "link:../../kibana/packages/eslint-config-kibana",
-    "@elastic/eslint-import-resolver-kibana": "link:../../kibana/packages/kbn-eslint-import-resolver-kibana",
+    "@kbn/eslint-import-resolver-kibana": "link:../../kibana/packages/kbn-eslint-import-resolver-kibana",
     "@kbn/plugin-helpers": "link:../../kibana/packages/kbn-plugin-helpers",
     "babel-eslint": "^8.0.2",
     "eslint": "^4.11.0",
+    "eslint-config-prettier": "^3.1.0",
     "eslint-plugin-babel": "^4.1.1",
     "eslint-plugin-import": "^2.3.0",
     "eslint-plugin-jest": "^21.22.0",
@@ -29,14 +30,15 @@
     "eslint-plugin-mocha": "^4.9.0",
     "eslint-plugin-no-unsanitized": "^3.0.2",
     "eslint-plugin-prefer-object-spread": "^1.2.1",
-    "eslint-plugin-prettier": "2.6.0",
-    "eslint-plugin-react": "^7.0.1",
+    "eslint-plugin-prettier": "^2.6.2",
+    "eslint-plugin-react": "^7.11.1",
     "expect.js": "^0.3.1",
-    "prettier": "1.12.1"
+    "prettier": "^1.14.3"
   },
   "dependencies": {
     "boom": "^7.2.0",
     "lodash": "3.10.1",
-    "moment": "^2.22.2"
+    "moment": "^2.22.2",
+    "react": "^16.3.0"
   }
 }

@@ -1,5 +1,5 @@
 ---
-extends: "@elastic/kibana"
+extends: "@elastic/eslint-config-kibana"
 
 plugins:
  - prettier
@@ -8,6 +8,4 @@ rules:
   prettier/prettier: error
 
 settings:
-  import/resolver:
-    '@elastic/eslint-import-resolver-kibana':
-      rootPackageName: 'tasks-demo'
+  import/resolver: "@kbn/eslint-import-resolver-kibana"
