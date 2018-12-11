@@ -1,3 +1,4 @@
+import { FAIL_EVERY } from './../../constants';
 import { sendAlert } from './send_alert';
 
 export function runFreeformTask({ kbnServer, taskInstance }) {
@@ -12,7 +13,8 @@ export function runFreeformTask({ kbnServer, taskInstance }) {
     const { index, query, headers, threshold, failMe } = params;
     const runs = state.runs || 0;
 
-    if (failMe) {
+    const nextRuns = runs + 1;
+    if (failMe && nextRuns % 3 === 0) {
       throw new Error(`Failing "${taskInstance.id}": it is configured to fail!`);
     }
 
@@ -33,7 +35,7 @@ export function runFreeformTask({ kbnServer, taskInstance }) {
         await sendAlert(server, hits, params, state);
       }
 
-      return { state: { ran: true, runs: runs + 1, hits_total: hits.total } };
+      return { state: { ran: true, runs: nextRuns, hits_total: hits.total } };
     } catch (err) {
       return { state: { ran: false, error: err.message } };
     }

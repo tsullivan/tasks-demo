@@ -151,7 +151,7 @@ export class ScheduleForm extends React.Component {
 
           <EuiFormRow>
             <EuiSwitch
-              label="Make me fail?"
+              label="Make me fail? Test task failure once every 3rd run"
               checked={this.state.failMe}
               onChange={this.onChangeFailMe}
             />
