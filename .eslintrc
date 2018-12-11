@@ -9,3 +9,5 @@ rules:
 
 settings:
   import/resolver: "@kbn/eslint-import-resolver-kibana"
+  react:
+    version: '16.3'
