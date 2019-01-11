@@ -14,7 +14,7 @@ export function clusterStatusRoute(server) {
         );
         return checkClusterStatus(callWithInternalUser);
       } catch (err) {
-        return Boom.wrap(err);
+        return Boom.boomify(err);
       }
     },
   });
@@ -32,7 +32,7 @@ export function checkLicenseStatusRoute(server) {
         );
         return checkLicenseStatus(callWithInternalUser);
       } catch (err) {
-        return Boom.wrap(err);
+        return Boom.boomify(err);
       }
     },
   });
@@ -62,7 +62,7 @@ export function getBuiltinTasksRoute(server, taskManager) {
 
         return data;
       } catch (err) {
-        return Boom.wrap(err);
+        return Boom.boomify(err);
       }
     },
   });

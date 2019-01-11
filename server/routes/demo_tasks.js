@@ -38,7 +38,7 @@ export function scheduleDemoTaskRoute(server, taskManager) {
 
         return data;
       } catch (err) {
-        return Boom.wrap(err);
+        return Boom.boomify(err);
       }
     },
   });
@@ -92,7 +92,7 @@ export function deleteDemoTasksRoute(server, taskManager) {
 
         return data;
       } catch (err) {
-        return Boom.wrap(err);
+        return Boom.boomify(err);
       }
     },
   });
